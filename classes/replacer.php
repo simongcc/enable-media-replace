@@ -347,6 +347,20 @@ class Replacer
         $content = $row['meta_value'];
         $content = str_replace($search_urls, $replace_urls, $content);
 
+         // iterate through all thumbnail size to replace image name in serialized content
+         $count = 0;
+         if( is_serialized( $content ) ) {
+           foreach ($search_urls as $key => $value) {
+             $search = 's:' . strlen($value) .':"' . $value . '"';
+             $replace = 's:' . strlen($replace_urls[$count]) .':"' . $replace_urls[$count] . '"';
+             // printf('replace %s with %s <br/>', $value, $replace_urls[$count]);
+             $count++;
+             $content = str_replace($search, $replace, $content);
+           }
+         } else {
+           $content = str_replace($search_urls, $replace_urls, $content);
+         }
+
         $sql = $wpdb->prepare('UPDATE ' . $wpdb->postmeta . ' SET meta_value = %s WHERE meta_id = %d', $content, $row['meta_id'] );
         $wpdb->query($sql);
       }
